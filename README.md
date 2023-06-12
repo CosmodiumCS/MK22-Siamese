@@ -2,6 +2,9 @@
 
 This is a Discord bot that allows you to split files into parts, send them as messages in a text channel, download attachments from a specified channel, and rebuild a file from split parts using a record file.
 
+## Why?
+* Because I like finding loopholes in free yet limited services such as discords CDN limiting users and bots a maximum of 25MB per file, this is designed to get around it by automating the splitting, uploading, downloading, and rebuilding of large files.
+
 ## Installation
 
 1. Clone the repository to your local machine.
