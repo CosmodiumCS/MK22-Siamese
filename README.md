@@ -66,6 +66,9 @@ Lists all available commands and their descriptions.
 
 Contributions are welcome! If you have any suggestions, improvements, or bug fixes, feel free to open an issue or submit a pull request.
 
+## Credits
+* Hall0wed - HL0#8086 on Discord
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
