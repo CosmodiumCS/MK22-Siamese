@@ -70,7 +70,7 @@ Contributions are welcome! If you have any suggestions, improvements, or bug fix
 
 ## Credits
 
-This Discord bot was created by [Hall0wedCCS](https://github.com/hall0wedccs) (Discord: HL0#8086).
+This script was created by [Hall0wedCCS](https://github.com/hall0wedccs) (Discord: HL0#8086).
 
 ## License
 
