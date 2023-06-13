@@ -7,12 +7,11 @@ This is a Discord bot that allows you to split files into parts, send them as me
 
 ## Installation
 
-1. Clone the repository to your local machine.
+1. Clone the repository
 ```
 git clone https://github.com/CosmodiumCS/MK22-FileSplit
 ```
-2. Install the required dependencies by running the following command:
-
+2. Install the required dependencies by running the following command: (you need python/pip installed for this if that wasn't clear)
 ```
 pip install -r requirements.txt
 ```
