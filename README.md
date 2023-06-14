@@ -3,10 +3,7 @@
 This is a Discord bot that allows you to split files into parts, send them as messages in a text channel, download attachments from a specified channel, and rebuild a file from split parts using a record file.
 
 ## Why?
-* Because I like finding loopholes in free yet limited services such as discords CDN limiting users and bots a maximum of 25MB per file, this is designed to get around it by automating the splitting, uploading, downloading, and rebuilding of large files.
-## !!Disclaimer!!
-
-I tested this out on 10 different large zip archives, and they corrupted, so this is not compatible with zip archives, I am working on this.
+Because I like finding loopholes in free yet limited services such as discords CDN limiting users and bots a maximum of 25MB per file, this is designed to get around it by automating the splitting, uploading, downloading, and rebuilding of large files.
 
 ## Installation
 
@@ -21,9 +18,6 @@ pip install -r requirements.txt
 
 3. Create a new Discord bot and obtain the bot token. Refer to the Discord API documentation for instructions on how to create a bot and obtain the token.
 4. Replace the empty string in the `bot.run('')` line of the code with your bot token.
-
-## TODO
-* Add ZIP Archive splitting capabilities
 
 ## Usage
 
