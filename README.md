@@ -25,7 +25,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-1. Invite the bot to your Discord server using the OAuth2 URL generated for your bot. Make sure to select the necessary permissions (Read messages, Send messages, Manage channels, Manage Categories, Send Files.
+1. Invite the bot to your Discord server using the OAuth2 URL generated for your bot. Make sure to select the necessary permissions (Read messages, Send messages, Manage channels, Manage Categories, Send Files.)
 2. Launch the bot by running the Python script:
 
 ```
