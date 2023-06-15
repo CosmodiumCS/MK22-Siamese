@@ -49,7 +49,7 @@ python3 main.py
 
 **Syntax:** `!rebuild`
 
-**Description:** This command prompts the user to make a selection from the list of entries it has in its `database.json` file and when selected, automatically pulls the files from that channel, and rebuilds it.
+**Description:** This command prompts the user to make a selection from the list of entries it has in its `database.json` file and when selected, automatically pulls the files from that discord server and channel, and rebuilds it.
 
 ### List Command
 
