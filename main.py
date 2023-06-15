@@ -54,16 +54,6 @@ async def split(ctx, file_name: str):
             parts_list.append(part_name)
             part_num += 1
 
-    # Create the split record file
-    record_file_name = f"{file_name}.record"
-    record_file_path = os.path.join(output_directory, record_file_name)
-
-    with open(record_file_path, 'w') as record_file:
-        record_file.write("\n".join(parts_list))
-
-    # Upload the split record file
-    await channel.send(file=discord.File(record_file_path))
-
     await ctx.send(f"File '{file_name}' split into parts in channel '{channel_name}'. "
                    f"Split record file '{record_file_name}' created and uploaded.")
 
@@ -158,5 +148,3 @@ async def list(ctx):
     await ctx.send(embed=embed)
 TOKEN = os.getenv(TOKEN)
 bot.run(TOKEN)
-
-# Uhhh im bad at comments ig, made by HL0#8086 on discord, also known as Hall0wed, any problems with the program or questions ask me lol, enjoy splitting files hahahahahhahahahahahahahahahahha
