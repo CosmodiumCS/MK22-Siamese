@@ -3,11 +3,34 @@
 import discord
 from discord.ext import commands
 import os
+import json
 from dotenv import load_dotenv
+import re
+import asyncio
 
 load_dotenv()
+
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+database_file = "database.json"
+
+created_parts = []  # Define the created_parts list outside of the split command
+
+
+def entry_exists(json_entry):
+    if not os.path.isfile(database_file):
+        return False
+
+    with open(database_file, "r") as database:
+        for line in database:
+            try:
+                entry = json.loads(line.strip())
+                if entry == json_entry:
+                    return True
+            except json.JSONDecodeError:
+                continue
+    return False
 
 
 @bot.event
@@ -24,13 +47,17 @@ async def split(ctx, file_name: str):
         return
 
     guild = ctx.guild
-    category = await guild.create_category("Split Files")
+    guild_data = {
+        "guild_id": str(guild.id),
+        "guild_name": guild.name
+    }
+    category = await get_or_create_category(guild, "split_files")
 
     # Create a new channel for split files
-    channel_name = f"split-{file_name}"
-    channel = await guild.create_text_channel(channel_name, category=category)
+    channel_name = f"split-{sanitize_channel_name(get_filename(file_name))}"
+    channel = await get_or_create_channel(guild, channel_name, category)
 
-    output_directory = os.path.join(os.getcwd(), "split-files")
+    output_directory = os.path.join(os.getcwd(), "split_files")
     os.makedirs(output_directory, exist_ok=True)
 
     # Split the file into parts
@@ -44,7 +71,7 @@ async def split(ctx, file_name: str):
             if not chunk:
                 break
 
-            part_name = f"{file_name}.part{part_num}"
+            part_name = f"{get_filename(file_name)}.part{part_num}"
             part_path = os.path.join(output_directory, part_name)
 
             with open(part_path, "wb") as part_file:
@@ -52,99 +79,160 @@ async def split(ctx, file_name: str):
 
             await channel.send(file=discord.File(part_path))
             parts_list.append(part_name)
+            created_parts.append(part_path)  # Add the part path to the created_parts list
             part_num += 1
 
+    # Create the JSON entry
+    json_entry = {
+        "file_name": get_filename(file_name),
+        "channel_name": channel_name,
+        "parts_list": parts_list,
+        "guild_data": guild_data
+    }
+
+    # Check if the entry already exists in the database
+    if not entry_exists(json_entry):
+        # Write the JSON entry to the database
+        with open(database_file, "a") as database:
+            database.write(json.dumps(json_entry) + "\n")
+
+    # Upload the JSON entry to the channel
+    json_str = json.dumps(json_entry, indent=4)
+    await ctx.send(f"```json\n{json_str}\n```")
     await ctx.send(f"File '{file_name}' split into parts in channel '{channel_name}'. "
-                   f"Split record file '{record_file_name}' created and uploaded.")
+                   f"JSON entry created and uploaded.")
 
-@bot.command()
-async def download(ctx, channel_name: str):
-    guild = ctx.guild
+    # Delete the created parts
+    for part_path in created_parts:
+        os.remove(part_path)
+    created_parts.clear()
 
-    # Find the channel by name
-    channel = discord.utils.get(guild.text_channels, name=channel_name)
-
-    if not channel:
-        await ctx.send(f"Channel '{channel_name}' not found.")
-        return
-
-    directory = "downloads"  # Directory to save the downloaded files
-    os.makedirs(directory, exist_ok=True)
-
-    async for message in channel.history(limit=None):
-        attachments = message.attachments
-        for attachment in attachments:
-            await attachment.save(os.path.join(directory, attachment.filename))
-
-    await ctx.send("Files downloaded successfully.")
 
 @bot.command()
 async def rebuild(ctx):
     guild = ctx.guild
 
-    # Request the path and name of the record file from the user
-    await ctx.send("Please provide the path and name of the record file:")
+    # Read the JSON entries from the database
+    entries = []
+    with open(database_file, "r") as database:
+        for line in database:
+            try:
+                entry = json.loads(line.strip())
+                entries.append(entry)
+            except json.JSONDecodeError:
+                continue
+
+    # Display the entries to the user
+    if not entries:
+        await ctx.send("No split files found.")
+        return
+
+    for index, entry in enumerate(entries, start=1):
+        channel_name = entry["channel_name"]
+        guild_id = entry["guild_data"]["guild_id"]
+        guild_name = entry["guild_data"]["guild_name"]
+        await ctx.send(f"{index}. File: {entry['file_name']}, Channel: {channel_name}, Guild ID: {guild_id}, Guild Name: {guild_name}")
+
+    await ctx.send("Select the number of the entry to rebuild:")
+
+    # Wait for user input
     try:
-        record_file_path = await bot.wait_for("message", check=lambda m: m.author == ctx.author, timeout=30)
-    except asyncio.TimeoutError:
-        await ctx.send("Record file input timed out. Please try again.")
+        message = await bot.wait_for("message", check=lambda m: m.author == ctx.author, timeout=30)
+        selection = int(message.content.strip())
+    except (asyncio.TimeoutError, ValueError):
+        await ctx.send("Invalid selection or timeout.")
         return
 
-    # Validate the record file path and name
-    record_file_path = record_file_path.content.strip()
-    if not os.path.isfile(record_file_path):
-        await ctx.send(f"Record file '{record_file_path}' not found.")
+    if selection < 1 or selection > len(entries):
+        await ctx.send("Invalid selection.")
         return
 
-    # Get the directory path of the record file
-    record_file_dir = os.path.dirname(record_file_path)
+    selected_entry = entries[selection - 1]
+    channel_name = selected_entry["channel_name"]
+    guild_id = int(selected_entry["guild_data"]["guild_id"])
+    guild_name = selected_entry["guild_data"]["guild_name"]
+
+    guild = bot.get_guild(guild_id)
+    if not guild:
+        await ctx.send(f"Guild '{guild_name}' not found.")
+        return
+
+    channel = discord.utils.get(guild.channels, name=channel_name)
+    if not channel:
+        await ctx.send(f"Channel '{channel_name}' not found.")
+        return
+
+    output_directory = os.path.join(os.getcwd(), "rebuild_files")
+    os.makedirs(output_directory, exist_ok=True)
+
+    # Download the split files from the channel
+    for part_name in selected_entry["parts_list"]:
+        part_path = os.path.join(output_directory, part_name)
+
+        async for message in channel.history(limit=None):
+            if message.attachments:
+                attachment = message.attachments[0]
+                if attachment.filename == part_name:
+                    await attachment.save(part_path)
+                    break
+
+    await ctx.send(f"Split files downloaded from channel '{channel_name}' in the guild '{guild.name}'.")
 
     # Rebuild the file
-    output_file_name = input("Enter the name for the rebuilt file: ")
-    output_file_path = os.path.join(os.getcwd(), output_file_name)
+    file_name = selected_entry["file_name"]
+    rebuilt_file_path = os.path.join(output_directory, file_name)
 
-    with open(record_file_path, 'r') as record_file, open(output_file_path, 'wb') as output_file:
-        for line in record_file:
-            part_name = line.strip()
-            part_path = os.path.join(record_file_dir, part_name)
+    with open(rebuilt_file_path, "wb") as rebuilt_file:
+        for part_name in selected_entry["parts_list"]:
+            part_path = os.path.join(output_directory, part_name)
+            with open(part_path, "rb") as part_file:
+                rebuilt_file.write(part_file.read())
 
-            if not os.path.isfile(part_path):
-                await ctx.send(f"Part file '{part_name}' not found. Rebuild aborted.")
-                return
+    await ctx.send(f"File '{file_name}' rebuilt. Final file created.")
 
-            with open(part_path, 'rb') as part_file:
-                output_file.write(part_file.read())
+    # Cleanup - Delete downloaded parts
+    for part_name in selected_entry["parts_list"]:
+        part_path = os.path.join(output_directory, part_name)
+        os.remove(part_path)
 
-    await ctx.send(f"File '{output_file_name}' successfully rebuilt from split files.")
+    # Cleanup - Delete channel and uploaded JSON file
+    json_file_path = os.path.join(output_directory, f"{get_filename(file_name)}.json")
+    os.remove(json_file_path)
 
 @bot.command()
 async def list(ctx):
-    """
-    List all available commands and their descriptions.
-    
-    Syntax: !list
-    Example: !list
-    
-    This command lists all the available commands in the bot along with their syntax and a brief description of how they work.
-    """
-    command_list = [
-        "!split <file_name>",
-        "!download <channel_name>",
-        "!rebuild",
-        "!list"
-    ]
+    embed = discord.Embed(title="Command List", description="List of available commands:", color=discord.Color.blue())
 
-    description_list = [
-        "Split a file into parts and send them as messages in a text channel.",
-        "Download all attachments from a specified channel to the 'downloads' directory.",
-        "Rebuild a file from split parts using a record file.",
-        "List all available commands and their descriptions."
-    ]
-
-    embed = discord.Embed(title="Bot Commands")
-    for i in range(len(command_list)):
-        embed.add_field(name=command_list[i], value=description_list[i], inline=False)
+    embed.add_field(name="!split <file_name>", value="Splits a file into parts and sends them as attachments in the created channel.")
+    embed.add_field(name="!rebuild", value="Rebuilds a file from split parts using the `database.json`.")
+    embed.add_field(name="!list", value="Lists all the commands and their descriptions.")
 
     await ctx.send(embed=embed)
-TOKEN = os.getenv(TOKEN)
-bot.run(TOKEN)
+
+async def get_or_create_category(guild, name):
+    category = discord.utils.get(guild.categories, name=name)
+    if not category:
+        category = await guild.create_category(name)
+    return category
+
+
+async def get_or_create_channel(guild, name, category):
+    channel_name = sanitize_channel_name(name)
+    channel = discord.utils.get(guild.channels, name=channel_name, category=category)
+    if not channel:
+        channel = await category.create_text_channel(channel_name)
+    return channel
+
+def get_filename(file_path):
+    return os.path.basename(file_path)
+
+def sanitize_channel_name(name):
+    sanitized_name = re.sub(r"[/\\.:]+", "", name)
+    return sanitized_name
+
+# Create the database file if it doesn't exist
+if not os.path.isfile(database_file):
+    with open(database_file, "w") as database:
+        pass
+
+bot.run(os.getenv("TOKEN"))
