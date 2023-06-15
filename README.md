@@ -11,14 +11,17 @@ Because I like finding loopholes in free yet limited services such as discords C
 ```
 git clone https://github.com/CosmodiumCS/MK22-FileSplit
 ```
-2. Install the required dependencies by running the following command: (you need python/pip installed for this if that wasn't clear)
+2. Change directories into the repository
 ```
 cd MK22-FileSplit
+```
+3. Install the required dependencies by running the following command: (you need python/pip installed for this if that wasn't clear)
+```
 pip install -r requirements.txt
 ```
 
-3. Create a new Discord bot and obtain the bot token. Refer to the Discord API documentation for instructions on how to create a bot and obtain the token.
-4. make a file called .env in the same directory as main.py and on the first line write "TOKEN=" and then paste your bot token right after the = without spaces.
+4. Create a new Discord bot and obtain the bot token. Refer to the Discord API documentation for instructions on how to create a bot and obtain the token.
+5. make a file called .env in the same directory as main.py and on the first line write "TOKEN=" and then paste your bot token right after the = without spaces.
 
 ## Usage
 
