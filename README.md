@@ -1,6 +1,6 @@
 # Discord File Splitter, Downloader, and Rebuilder Bot
 
-This is a Discord bot that allows you to split files into parts, send them as messages in a text channel, download attachments from a specified channel, and rebuild a file from split parts using a record file.
+This is a Discord bot that allows you to split files into parts, send them as messages in a text channel, download attachments from a specified channel, and rebuild a file from split parts using a JSON database.
 
 ## Why?
 Because I like finding loopholes in free yet limited services such as Discord's CDN, which limits users and bots to a maximum of 25MB per file. This bot is designed to get around this limitation by automating the splitting, uploading, downloading, and rebuilding of large files.
