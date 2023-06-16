@@ -1,4 +1,4 @@
-# Discord File Splitter, Downloader, and Rebuilder Bot
+# Discord Cloud Drive Bot, aka Siamese
 
 This is a Discord bot that allows you to split files into parts, send them as messages in a text channel, download attachments from a specified channel, and rebuild a file from split parts using a JSON database.
 
@@ -11,11 +11,11 @@ Note: For optimal use, please make sure you are in the MK22-FileSplit directory 
 
 1. Clone the repository
 ```
-git clone https://github.com/CosmodiumCS/MK22-FileSplit
+git clone https://github.com/CosmodiumCS/MK22-Siamese
 ```
 2. Change directories into the repository
 ```
-cd MK22-FileSplit
+cd MK22-Siamese
 ```
 3. Install the required dependencies by running the following command:
 ```
