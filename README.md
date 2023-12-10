@@ -3,7 +3,7 @@
 This is a Discord bot that allows you to split files into parts, send them as messages in a text channel, download attachments from a specified channel, and rebuild a file from split parts using a JSON database.
 ### Disclaimer
 
-This project will no long be receiving updates to https://github.com/CosmodiumCS/MK22-Siamese/ Instead go to https://github.com/d-obfuscation/Siamese Thank you.
+**This project will no long be receiving updates to https://github.com/CosmodiumCS/MK22-Siamese/ Instead go to https://github.com/d-obfuscation/Siamese Thank you.**
 
 ## Why?
 Because I like finding loopholes in free yet limited services such as Discord's CDN, which limits users and bots to a maximum of 25MB per file. This bot is designed to get around this limitation by automating the splitting, uploading, downloading, and rebuilding of large files.
