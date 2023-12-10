@@ -1,11 +1,14 @@
 # Discord Cloud Drive Bot, aka Siamese
 
 This is a Discord bot that allows you to split files into parts, send them as messages in a text channel, download attachments from a specified channel, and rebuild a file from split parts using a JSON database.
+### Disclaimer
+
+This project will no long be receiving updates to https://github.com/CosmodiumCS/MK22-Siamese/ Instead go to https://github.com/d-obfuscation/Siamese Thank you.
 
 ## Why?
 Because I like finding loopholes in free yet limited services such as Discord's CDN, which limits users and bots to a maximum of 25MB per file. This bot is designed to get around this limitation by automating the splitting, uploading, downloading, and rebuilding of large files.
 
-Note: For optimal use, please make sure you are in the MK22-FileSplit directory when running main.py otherwise it can generate files/folders outside that directory in the directory you're running it from.
+Note: For optimal use, please make sure you are in the MK22-Siamese directory when running main.py otherwise it can generate files/folders outside that directory in the directory you're running it from.
 
 ## Installation
 
@@ -63,7 +66,7 @@ Contributions are welcome! If you have any suggestions, improvements, or bug fix
 
 ## Credits
 
-This script was created by [Hall0wedCCS](https://github.com/hall0wedccs) (Discord: HL0#8086).
+This script was created by [Obfuscation](https://github.com/d-obfuscation) (Discord: .obf.).
 
 ## License
 
